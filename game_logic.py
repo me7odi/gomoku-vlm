@@ -2,7 +2,7 @@ import numpy as np
 
 
 def create_game(size: int = 15):
-    return np.zeros((size, size))
+    return np.zeros((size, size), dtype=np.int8)
 
 
 def is_valid(game, x: int, y: int) -> bool:
