@@ -3,9 +3,8 @@ import random
 import numpy as np
 import numpy.typing as npt
 
-# Creates an empty game board, which is just a np array of zeroes
-def create_board(size: int = 15):
-    return np.zeros((size, size))
+def create_game(size: int = 15):
+    return np.zeros((size, size), dtype=np.int8)
 
 
 def position_is_empty(board: npt.NDArray, y: int, x: int) -> bool:
