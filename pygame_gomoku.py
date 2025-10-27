@@ -91,19 +91,19 @@ class GomokuGame:
         pygame.draw.rect(self.screen, INFO_COLOR, info_rect)
         if self.game_over:
             if self.winner:
-                text = f"Spieler {'Schwarz' if self.winner == 1 else 'Weiss'} gewinnt!"
+                text = f"Spieler {'Schwarz' if self.winner == 1 else 'Weiß'} gewinnt!"
                 color = HIGHLIGHT_COLOR
             else:
                 text = "Unentschieden!"
                 color = WHITE
         else:
-            text = f"Spieler {'Schwarz' if self.current_player == 1 else 'Weiss'} ist am Zug"
+            text = f"Spieler {'Schwarz' if self.current_player == 1 else 'Weiß'} ist am Zug"
             color = WHITE
         text_surface = FONT.render(text, True, color)
         text_rect = text_surface.get_rect(center=(WINDOW_SIZE//2, WINDOW_SIZE + INFO_HEIGHT//2))
         self.screen.blit(text_surface, text_rect)
         if self.game_over:
-            restart_text = FONT_SMALL.render("R fuer Restart", True, WHITE)
+            restart_text = FONT_SMALL.render("R für Restart", True, WHITE)
             restart_rect = restart_text.get_rect(center=(WINDOW_SIZE//2, WINDOW_SIZE + INFO_HEIGHT - 15))
             self.screen.blit(restart_text, restart_rect)
 
@@ -183,3 +183,4 @@ class GomokuGame:
 if __name__ == "__main__":
     game = GomokuGame()
     game.run()
+
