@@ -6,20 +6,13 @@ from enum import Enum
 
 class Anchor(Enum):
     """
-    Anchor of the image as (fx, fy)
-    TL = Top_Left, etc.
+    Anchor of the image to adjust the (x, y) coordinates.
     """
-    TL = (0.0, 0.0)
-    TC = (0.5, 0.0)
-    TR = (1.0, 0.0)
-    CL = (0.0, 0.5)
-    CC = (0.5, 0.5)
-    CR = (1.0, 0.5)
-    BL = (0.0, 1.0)
-    BC = (0.5, 1.0)
-    BR = (1.0, 1.0)
+    MIN = 0.0
+    CENTER = 0.5
+    MAX = 1.0
 
-CalcCoordsFn = Callable[[int, int], tuple[int, int, int, int, Anchor]]
+CalcCoordsFn = Callable[[int, int], tuple[int, int, int, int, Anchor, Anchor]]
 
 
 def calc_coords_gomoku(
@@ -33,12 +26,15 @@ def calc_coords_gomoku(
 
     x = x0 + j * cell_size
     y = y0 + i * cell_size
-    return x, y, w, h, Anchor.TL
+    return x, y, w, h, Anchor.MIN, Anchor.MIN
 
 
-def adjust_xy(x: int, y: int, w: int, h: int, image_anchor: Anchor) -> tuple[int, int]:
-    x = int(x - w * image_anchor.value[0])
-    y = int(y - h * image_anchor.value[1])
+def adjust_xy(x: int, y: int, w: int, h: int, x_anchor: Anchor, y_anchor: Anchor) -> tuple[int, int]:
+    """
+    Shifts the x and y coordinates of the image by multiplying with the provided anchor value.
+    """
+    x = int(x - w * x_anchor.value)
+    y = int(y - h * y_anchor.value)
 
     return x, y
 
@@ -49,8 +45,8 @@ def render_single(
     """
     Render a single piece on the game board.
     """
-    x, y, w, h, center = calc_coords(i, j)
-    x, y = adjust_xy(x, y, w, h, center)
+    x, y, w, h, x_a, y_a = calc_coords(i, j)
+    x, y = adjust_xy(x, y, w, h, x_a, y_a)
     piece = piece.resize((w, h), Image.LANCZOS) if img.size != (w, h) else piece
     img.paste(piece, (x, y), piece if piece.mode == "RGBA" else None)
     return img

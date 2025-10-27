@@ -15,10 +15,7 @@ def is_board_full(board: npt.NDArray) -> bool:
     if not isinstance(board, np.ndarray):
         raise TypeError("board must be a numpy array.")
 
-    empties = np.argwhere(board == 0)  # shape: (k, 2) rows of empty [y, x] points
-    if len(empties) == 0:
-        return True
-    return False
+    return not np.any(board == 0)
 
 
 def make_move(board: npt.NDArray, y: int, x: int, player: int):
