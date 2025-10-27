@@ -3,6 +3,15 @@ import random
 import numpy as np
 import numpy.typing as npt
 
+
+_thread_local = threading.local()
+
+def get_random() -> random.Random:
+    global _thread_local
+    if not hasattr(_thread_local, "rng"):
+        _thread_local.rng = random.Random()  
+    return _thread_local.rng
+    
 def create_board(size: int = 15):
     return np.zeros((size, size), dtype=np.int8)
 
@@ -12,9 +21,6 @@ def position_is_empty(board: npt.NDArray, y: int, x: int) -> bool:
 
 
 def is_board_full(board: npt.NDArray) -> bool:
-    if not isinstance(board, np.ndarray):
-        raise TypeError("board must be a numpy array.")
-
     return not np.any(board == 0)
 
 
@@ -34,32 +40,25 @@ def _get_random_empty_position(board: npt.NDArray, rng: random.Random) -> tuple[
     """
     Return a random (y, x) that is currently empty.
     """
-    if not isinstance(board, np.ndarray):
-        raise TypeError("board must be a numpy array.")
-    if not isinstance(rng, random.Random):
-        raise TypeError('rng must be a Random.')
 
     empties = np.argwhere(board == 0)  # shape: (k, 2) rows of empty [y, x] points
     if len(empties) == 0:
         raise RuntimeError("board is full")
 
-    # Draw random [y, x] from empties,
-    i = rng.randint(0, len(empties) - 1) # randint is inclusive for upper-bound as well, keep -1
-    y, x = empties[i] # Otherwise not plain python ints
+    y, x = rng.choice(empties)
     return y, x
 
 
-def perform_random_valid_move(board: npt.NDArray, player: int, rng: random.Random) -> tuple[int, int]:
+def generate_next_move_random(board: npt.NDArray, player: int) -> tuple[int, int]:
     """
     Perform a random, but valid move for the given player.
     Returns the (y, x) position where the move was performed.
     """
-    if not isinstance(board, np.ndarray):
-        raise TypeError("board must be a numpy array.")
+    
     if not (player in [1, 2]):
         raise RuntimeError("player must be either 1 or 2")
 
-    y, x = _get_random_empty_position(board, rng)
+    y, x = _get_random_empty_position(board, get_random()
     make_move(board, y, x, player)
     return y, x
 
@@ -104,13 +103,8 @@ def get_winner(board: npt.NDArray, n: int) -> int:
     -1 = no winner, board is full
     0 = no winner, game still in progress
     """
-    if not isinstance(board, np.ndarray):
-        raise RuntimeError("board must be a numpy array.")
 
-    if has_player_won(board, n, 1):
-        return 1
-    if has_player_won(board, n, 2):
-        return 2
-    if is_board_full(board):
-        return -1
-    return 0
+    for player in (1, 2):
+        if has_player_won(board, n, player):
+            return player
+    return -1 if is_board_full(board) else 0
