@@ -58,7 +58,7 @@ def generate_next_move_random(board: npt.NDArray, player: int) -> tuple[int, int
     if not (player in [1, 2]):
         raise RuntimeError("player must be either 1 or 2")
 
-    y, x = _get_random_empty_position(board, get_random()
+    y, x = _get_random_empty_position(board, get_random())
     make_move(board, y, x, player)
     return y, x
 
