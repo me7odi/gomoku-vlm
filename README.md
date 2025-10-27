@@ -16,13 +16,13 @@ Vision Language Model für Gomoku
 
 ```
 projekt/
-├── game_logic.py          # Spiellogik - BRAUCHT is_valid()! 
+├── game_logic.py          # Spiellogik - BRAUCHT is_valid()! ?!
 ├── renderer.py            # Bildgenerierung 
+├── pygame_gomoku.py       # GUI
 ├── bot.py                 # Bot
-├── pygame_gomoku.py       # GUI 
 ├── game_runner.py         # Spiel-Ausführung und Logging
-├── data_generator.py      # VLM Dataset 
-└── evaluate_vlm.py        # VLM Evaluation 
+├── data.py                # VLM Dataset 
+└── evaluate.py            # VLM Evaluation 
 ```
 
 für game_logic.py? sonst kann mein "test" bot.py und pygame_gomoku.py nicht laufen ?! 
@@ -43,8 +43,6 @@ pip install numpy pillow pygame
 
 ### 1. Spiel (Aufgabe 1-3)
 
-python game_runner.py
-
 python pygame_gomoku.py
 
 Steuerung:
@@ -52,22 +50,19 @@ Steuerung:
 - R: Neues Spiel
 - ESC: Beenden
 
+bot > hab mich dran versucht 
+python game_runner.py ? 
+
 ### 3. VLM Dataset generieren (Aufgabe 4)
-
-python data_generator.py
-
+python data.py
 
 ### 4. VLM evaluieren (Aufgabe 5)
-
 Pre-Training Evaluation:
 TODO: VLM Predictions generieren
 
-
 ### 5. VLM Finetuning (Aufgabe 6)
-TODO: Mit deinem VLM Framework
-LLaVA oder andere?
-
+TODO: Mit VLM Framework
 
 ### 6. Post-Training Evaluation (Aufgabe 7)
-
 + VLM Dataset Format
+
