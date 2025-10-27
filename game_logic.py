@@ -3,12 +3,19 @@ import random
 import numpy as np
 import numpy.typing as npt
 
-def create_game(size: int = 15):
+def create_board(size: int = 15):
     return np.zeros((size, size), dtype=np.int8)
 
 
 def position_is_empty(board: npt.NDArray, y: int, x: int) -> bool:
     return board[y, x] == 0
+
+
+def is_board_full(board: npt.NDArray) -> bool:
+    if not isinstance(board, np.ndarray):
+        raise TypeError("board must be a numpy array.")
+
+    return not np.any(board == 0)
 
 
 def make_move(board: npt.NDArray, y: int, x: int, player: int):
@@ -24,9 +31,11 @@ def make_move(board: npt.NDArray, y: int, x: int, player: int):
 
 
 def _get_random_empty_position(board: npt.NDArray, rng: random.Random) -> tuple[int, int]:
-    """Return a random (y, x) that is currently empty."""
+    """
+    Return a random (y, x) that is currently empty.
+    """
     if not isinstance(board, np.ndarray):
-        raise RuntimeError("board must be a numpy array.")
+        raise TypeError("board must be a numpy array.")
     if not isinstance(rng, random.Random):
         raise TypeError('rng must be a Random.')
 
@@ -46,7 +55,7 @@ def perform_random_valid_move(board: npt.NDArray, player: int, rng: random.Rando
     Returns the (y, x) position where the move was performed.
     """
     if not isinstance(board, np.ndarray):
-        raise RuntimeError("board must be a numpy array.")
+        raise TypeError("board must be a numpy array.")
     if not (player in [1, 2]):
         raise RuntimeError("player must be either 1 or 2")
 
@@ -54,7 +63,7 @@ def perform_random_valid_move(board: npt.NDArray, player: int, rng: random.Rando
     make_move(board, y, x, player)
     return y, x
 
-def _has_won_helper(board: npt.NDArray, n: int, player: int):
+def _has_player_won_helper(board: npt.NDArray, n: int, player: int):
     mask = (board == player).astype(int)
     kernel = np.ones(n, dtype=int)  # dim of win condition
 
@@ -62,7 +71,7 @@ def _has_won_helper(board: npt.NDArray, n: int, player: int):
     return np.any(conv == n)
 
 
-def has_won(board, n: int, player: int) -> bool:
+def has_player_won(board: npt.NDArray, n: int, player: int) -> bool:
     """
     returns true if the win condition is satisfied by the given player (n in a row), otherwise false
     """
@@ -71,18 +80,37 @@ def has_won(board, n: int, player: int) -> bool:
     size = board.shape[0]
     for i in range(0, size):
         col = board[:, i]
-        if _has_won_helper(col, n, player):
+        if _has_player_won_helper(col, n, player):
             return True
         row = board[i, :]
-        if _has_won_helper(row, n, player):
+        if _has_player_won_helper(row, n, player):
             return True
 
     # Check diagonals
     for offset in range(-size + n, size - n + 1):
         diag1 = np.diag(board, k=offset)
-        if _has_won_helper(diag1, n, player):
+        if _has_player_won_helper(diag1, n, player):
             return True
         diag2 = np.diag(np.fliplr(board), k=offset)
-        if _has_won_helper(diag2, n, player):
+        if _has_player_won_helper(diag2, n, player):
             return True
     return False
+
+def get_winner(board: npt.NDArray, n: int) -> int:
+    """
+    returns the winner of the given board.
+    1 = player1 won
+    2 = player2 won
+    -1 = no winner, board is full
+    0 = no winner, game still in progress
+    """
+    if not isinstance(board, np.ndarray):
+        raise RuntimeError("board must be a numpy array.")
+
+    if has_player_won(board, n, 1):
+        return 1
+    if has_player_won(board, n, 2):
+        return 2
+    if is_board_full(board):
+        return -1
+    return 0

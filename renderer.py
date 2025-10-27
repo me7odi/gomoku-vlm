@@ -2,9 +2,17 @@ import numpy as np
 from PIL import Image
 import numpy.typing as npt
 from typing import Callable, Literal
+from enum import Enum
 
-Orientation = Literal["tl", "tc", "tr", "cl", "cc", "cr", "bl", "bc", "br"]
-CalcCoordsFn = Callable[[int, int], tuple[int, int, int, int, Orientation]]
+class Anchor(Enum):
+    """
+    Anchor of the image to adjust the (x, y) coordinates.
+    """
+    MIN = 0.0
+    CENTER = 0.5
+    MAX = 1.0
+
+CalcCoordsFn = Callable[[int, int], tuple[int, int, int, int, Anchor, Anchor]]
 
 
 def calc_coords_gomoku(
@@ -18,19 +26,15 @@ def calc_coords_gomoku(
 
     x = x0 + j * cell_size
     y = y0 + i * cell_size
-    return x, y, w, h, "tl"
+    return x, y, w, h, Anchor.MIN, Anchor.MIN
 
 
-def fix_xy(x: int, y: int, w: int, h: int, center: Orientation) -> tuple[int, int]:
+def adjust_xy(x: int, y: int, w: int, h: int, x_anchor: Anchor, y_anchor: Anchor) -> tuple[int, int]:
     """
-    Adjust the coordinates of a piece based on its center orientation.
+    Shifts the x and y coordinates of the image by multiplying with the provided anchor value.
     """
-    hor_factor = {"l": 0, "c": 0.5, "r": 1}
-    ver_factor = {"t": 0, "c": 0.5, "b": 1}
-
-    f, s = center
-    x = int(x - w * hor_factor[s])
-    y = int(y - h * ver_factor[f])
+    x = int(x - w * x_anchor.value)
+    y = int(y - h * y_anchor.value)
 
     return x, y
 
@@ -41,8 +45,8 @@ def render_single(
     """
     Render a single piece on the game board.
     """
-    x, y, w, h, center = calc_coords(i, j)
-    x, y = fix_xy(x, y, w, h, center)
+    x, y, w, h, x_a, y_a = calc_coords(i, j)
+    x, y = adjust_xy(x, y, w, h, x_a, y_a)
     piece = piece.resize((w, h), Image.LANCZOS) if img.size != (w, h) else piece
     img.paste(piece, (x, y), piece if piece.mode == "RGBA" else None)
     return img
