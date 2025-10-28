@@ -2,23 +2,32 @@ import random
 
 import numpy as np
 import numpy.typing as npt
+import threading
+
+
+_thread_local = threading.local()
+
+
+def get_random() -> random.Random:
+    global _thread_local
+    if not hasattr(_thread_local, "rng"):
+        _thread_local.rng = random.Random()
+    return _thread_local.rng
+
 
 def create_board(size: int = 15):
     return np.zeros((size, size), dtype=np.int8)
 
 
-def position_is_empty(board: npt.NDArray, y: int, x: int) -> bool:
+def position_is_empty(board: npt.NDArray[np.int8], y: int, x: int) -> bool:
     return board[y, x] == 0
 
 
-def is_board_full(board: npt.NDArray) -> bool:
-    if not isinstance(board, np.ndarray):
-        raise TypeError("board must be a numpy array.")
-
+def is_board_full(board: npt.NDArray[np.int8]) -> bool:
     return not np.any(board == 0)
 
 
-def make_move(board: npt.NDArray, y: int, x: int, player: int):
+def make_move(board: npt.NDArray[np.int8], y: int, x: int, player: int):
     if not (0 <= y < board.shape[0]):
         raise ValueError("y value out of board range")
     if not (0 <= x < board.shape[1]):
@@ -30,40 +39,38 @@ def make_move(board: npt.NDArray, y: int, x: int, player: int):
     board[y, x] = player
 
 
-def _get_random_empty_position(board: npt.NDArray, rng: random.Random) -> tuple[int, int]:
+def _get_random_empty_position(
+    board: npt.NDArray[np.int8], rng: random.Random
+) -> tuple[int, int]:
     """
     Return a random (y, x) that is currently empty.
     """
-    if not isinstance(board, np.ndarray):
-        raise TypeError("board must be a numpy array.")
-    if not isinstance(rng, random.Random):
-        raise TypeError('rng must be a Random.')
 
     empties = np.argwhere(board == 0)  # shape: (k, 2) rows of empty [y, x] points
     if len(empties) == 0:
         raise RuntimeError("board is full")
 
-    # Draw random [y, x] from empties,
-    i = rng.randint(0, len(empties) - 1) # randint is inclusive for upper-bound as well, keep -1
-    y, x = empties[i] # Otherwise not plain python ints
+    y, x = rng.choice(empties)
     return y, x
 
 
-def perform_random_valid_move(board: npt.NDArray, player: int, rng: random.Random) -> tuple[int, int]:
+def generate_next_move_random(
+    board: npt.NDArray[np.int8], player: int
+) -> tuple[int, int]:
     """
     Perform a random, but valid move for the given player.
     Returns the (y, x) position where the move was performed.
     """
-    if not isinstance(board, np.ndarray):
-        raise TypeError("board must be a numpy array.")
-    if not (player in [1, 2]):
+
+    if player not in [1, 2]:
         raise RuntimeError("player must be either 1 or 2")
 
-    y, x = _get_random_empty_position(board, rng)
+    y, x = _get_random_empty_position(board, get_random())
     make_move(board, y, x, player)
     return y, x
 
-def _has_player_won_helper(board: npt.NDArray, n: int, player: int):
+
+def _has_player_won_helper(board: npt.NDArray[np.int8], n: int, player: int):
     mask = (board == player).astype(int)
     kernel = np.ones(n, dtype=int)  # dim of win condition
 
@@ -71,7 +78,7 @@ def _has_player_won_helper(board: npt.NDArray, n: int, player: int):
     return np.any(conv == n)
 
 
-def has_player_won(board: npt.NDArray, n: int, player: int) -> bool:
+def has_player_won(board: npt.NDArray[np.int8], n: int, player: int) -> bool:
     """
     returns true if the win condition is satisfied by the given player (n in a row), otherwise false
     """
@@ -96,7 +103,8 @@ def has_player_won(board: npt.NDArray, n: int, player: int) -> bool:
             return True
     return False
 
-def get_winner(board: npt.NDArray, n: int) -> int:
+
+def get_winner(board: npt.NDArray[np.int8], n: int) -> int:
     """
     returns the winner of the given board.
     1 = player1 won
@@ -104,13 +112,8 @@ def get_winner(board: npt.NDArray, n: int) -> int:
     -1 = no winner, board is full
     0 = no winner, game still in progress
     """
-    if not isinstance(board, np.ndarray):
-        raise RuntimeError("board must be a numpy array.")
 
-    if has_player_won(board, n, 1):
-        return 1
-    if has_player_won(board, n, 2):
-        return 2
-    if is_board_full(board):
-        return -1
-    return 0
+    for player in (1, 2):
+        if has_player_won(board, n, player):
+            return player
+    return -1 if is_board_full(board) else 0

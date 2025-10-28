@@ -1,0 +1,31 @@
+# Gomoku Configuration
+
+# Board settings
+BOARD_SIZE = 15
+WIN_CONDITION = 5
+
+# Display settings
+CELL_SIZE = 40
+MARGIN = 50
+INFO_HEIGHT = 60
+
+# Colors
+BOARD_COLOR = (240, 217, 181)
+LINE_COLOR = (0, 0, 0)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+HOVER_COLOR = (255, 0, 0, 100)
+HIGHLIGHT_COLOR = (255, 215, 0)
+INFO_COLOR = (70, 70, 70)
+
+# Calculated values
+WINDOW_SIZE = BOARD_SIZE * CELL_SIZE + 2 * MARGIN
+
+# Font sizes
+FONT_SIZE_LARGE = 36
+FONT_SIZE_SMALL = 24
+
+# Game settings
+PLAYER_BLACK = 1
+PLAYER_WHITE = 2
+FPS = 60
