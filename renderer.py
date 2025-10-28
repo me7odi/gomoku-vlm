@@ -1,16 +1,19 @@
 import numpy as np
 from PIL import Image
 import numpy.typing as npt
-from typing import Callable, Literal
+from typing import Callable
 from enum import Enum
+
 
 class Anchor(Enum):
     """
     Anchor of the image to adjust the (x, y) coordinates.
     """
+
     MIN = 0.0
     CENTER = 0.5
     MAX = 1.0
+
 
 CalcCoordsFn = Callable[[int, int], tuple[int, int, int, int, Anchor, Anchor]]
 
@@ -29,7 +32,9 @@ def calc_coords_gomoku(
     return x, y, w, h, Anchor.MIN, Anchor.MIN
 
 
-def adjust_xy(x: int, y: int, w: int, h: int, x_anchor: Anchor, y_anchor: Anchor) -> tuple[int, int]:
+def adjust_xy(
+    x: int, y: int, w: int, h: int, x_anchor: Anchor, y_anchor: Anchor
+) -> tuple[int, int]:
     """
     Shifts the x and y coordinates of the image by multiplying with the provided anchor value.
     """
@@ -72,7 +77,7 @@ def render(
         assert points.dtype == old_points.dtype, f"{points.dtype} != {old_points.dtype}"
         indices = np.argwhere((points != old_points) & (points != 0))
     else:
-        indices = np.nonzero(points)
-    for i, j in zip(*indices):
+        indices = np.argwhere(points != 0)
+    for i, j in indices:
         img = render_single(img, i, j, pieces[points[i, j] - 1], calc_coords)
     return img
