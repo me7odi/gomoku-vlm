@@ -29,7 +29,7 @@ def calc_coords_gomoku(
 
     x = x0 + j * cell_size
     y = y0 + i * cell_size
-    return x, y, w, h, Anchor.MIN, Anchor.MIN
+    return x, y, w, h, Anchor.CENTER, Anchor.CENTER
 
 
 def adjust_xy(

@@ -35,6 +35,7 @@ def play_random_game(size: int = 15, n: int = 5) -> np.ndarray:
 def create_gomoku_board(
     size: int = 15, cell_size: int = 40, margin: int = 20, line_width: int = 2
 ):
+    size = size - 1
     board_px = size * cell_size + 2 * margin
     img = Image.new("RGB", (board_px, board_px), color=(238, 178, 73))
     draw = ImageDraw.Draw(img)
