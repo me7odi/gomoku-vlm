@@ -205,3 +205,9 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Gomoku Game Data
+# game states and images
+game_data/
+move_*.png
+*.npy
